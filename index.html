@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ใบงาน for loop</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2730%27 fill=%27%237c5cff%27/%3E%3Cpath d=%27M44 32a12 12 0 1 1-3.5-8.5%27 fill=%27none%27 stroke=%27%23fff%27 stroke-width=%276%27 stroke-linecap=%27round%27/%3E%3Cpath d=%27M44 18v8h-8%27 fill=%27none%27 stroke=%27%23ffd23f%27 stroke-width=%276%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=IBM+Plex+Sans+Thai+Looped:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: cute, playful, teen — talks like a friend, still clear
+   IDEA: everything goes round and round — a looping track, "รอบที่" for each part, a score ring that fills like laps
+   PICTURE: header loop track with a blob mascot running laps while i counts 0→4
+   COLOUR and TYPE: lilac ground, violet + bubblegum + mint stickers with ink outlines; Mitr titles, Plex Thai Looped body
+   LAYOUT: one column ≤ 880px, sticker cards with offset shadows, sticky ring score bar */
+:root{color-scheme:light dark;--bg:light-dark(#f2edff,#17122b);--paper:light-dark(#ffffff,#221b3d);--ink:light-dark(#2a2150,#f1ecff);--muted:light-dark(#6e6597,#b3a9da);--vio:#7c5cff;--pink:#ff6fae;--mint:#2fd3a7;--sun:#ffd23f;--soft:light-dark(#ece6ff,#2e2550);--line:light-dark(#2a2150,#0b0818);--good:light-dark(#0f9a73,#5ff0c4);--bad:light-dark(#e2366f,#ff8db5);--code:light-dark(#faf8ff,#1a1430)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 'IBM Plex Sans Thai Looped',system-ui,sans-serif;overflow-x:clip;
+ background-image:radial-gradient(circle at 20px 20px,light-dark(#e2d9ff,#231c40) 2.5px,transparent 3px);background-size:40px 40px}
+h1,h2,h3{font-family:Mitr,sans-serif;font-weight:500;line-height:1.15;margin:0}
+h1{font-size:clamp(32px,5.4vw,50px);text-wrap:balance}
+h2{font-size:26px}
+h3{font-size:19px}
+.hero{position:relative;background:var(--vio);color:#fff;padding:clamp(24px,4vw,44px) max(5vw,16px) 64px;overflow:hidden}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:34px;background:var(--bg);-webkit-mask:radial-gradient(22px 18px at 50% 0,transparent 98%,#000) 0 0/44px 34px repeat-x;mask:radial-gradient(22px 18px at 50% 0,transparent 98%,#000) 0 0/44px 34px repeat-x}
+.hero .in{max-width:880px;margin:auto;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:center}
+@media(max-width:700px){.hero .in{grid-template-columns:minmax(0,1fr)}}
+.hero p{margin:10px 0 0;color:#ece6ff;font-size:17px}
+.tag{display:inline-block;background:var(--sun);color:#3a2a00;font:500 14px Mitr,sans-serif;border:2px solid var(--line);border-radius:999px;padding:2px 12px;margin-bottom:12px;transform:rotate(-2deg)}
+.loopArt{width:100%;max-width:420px;justify-self:center}
+.loopArt svg{width:100%;height:auto;display:block;overflow:visible}
+.counter{display:flex;justify-content:center;gap:8px;margin-top:6px;font:600 15px 'JetBrains Mono',monospace}
+.counter span{background:#fff;color:#2a2150;border:2px solid var(--line);border-radius:10px;padding:2px 10px}
+.counter b{background:var(--pink);color:#fff;border:2px solid var(--line);border-radius:10px;padding:2px 10px;min-width:62px;text-align:center}
+.sbar{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(6px);border-bottom:2.5px solid var(--line);padding:6px max(5vw,16px)}
+.sbar .in{max-width:880px;margin:auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.ring{width:46px;height:46px;flex:none}
+.ring circle{fill:none;stroke-width:7}
+.ring .bgc{stroke:var(--soft)}.ring .fg{stroke:var(--pink);stroke-linecap:round;transition:stroke-dashoffset .5s}
+.sbar b{font:500 18px Mitr,sans-serif;white-space:nowrap}
+.sbar small{display:block;font-size:13px;color:var(--muted);line-height:1.2}
+.py{margin-left:auto;font-size:14px;color:var(--muted);white-space:nowrap;border:2px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--paper)}
+.py.ok{color:var(--good)}.py.err{color:var(--bad)}
+main{max-width:880px;margin:auto;padding:18px max(4vw,14px) 70px}
+.sec{margin:42px 0 0}
+.sec>p{margin:6px 0 14px;color:var(--muted)}
+.lap{display:inline-flex;align-items:center;gap:6px;font:500 14px Mitr,sans-serif;background:var(--mint);color:#063b2d;border:2px solid var(--line);border-radius:999px;padding:3px 12px 3px 6px;margin-bottom:8px;box-shadow:2px 2px 0 var(--line)}
+.lap svg{width:20px;height:20px}
+.card{background:var(--paper);border:2.5px solid var(--line);border-radius:22px;padding:18px 18px 20px;margin:16px 0;box-shadow:5px 5px 0 var(--line)}
+.card.done{background:light-dark(#e9fbf5,#16322b)}
+.card.wrong{background:light-dark(#fff0f6,#3a1b2c)}
+.qhead{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:8px}
+.pts{font:500 13px Mitr,sans-serif;white-space:nowrap;background:var(--soft);border-radius:999px;padding:2px 10px}
+.status{font:500 14px Mitr,sans-serif;white-space:nowrap;border-radius:999px;padding:2px 10px;background:var(--soft)}
+.status.ok{background:var(--mint);color:#063b2d}.status.no{background:var(--pink);color:#fff}
+pre,.code{font:15px/1.6 'JetBrains Mono',monospace;tab-size:4}
+pre.src{background:var(--code);border:2px dashed light-dark(#b9abf0,#4b3f7a);border-radius:14px;padding:12px 14px;margin:8px 0;overflow-x:auto;white-space:pre}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px}
+.opt{min-height:50px;text-align:left;padding:8px 14px;border-radius:16px;border:2.5px solid var(--line);background:var(--paper);color:var(--ink);font:15px/1.4 'JetBrains Mono','IBM Plex Sans Thai Looped',monospace;cursor:pointer;white-space:pre-wrap;box-shadow:3px 3px 0 var(--line);transition:transform .08s,box-shadow .08s}
+.opt:hover:not(:disabled){background:var(--soft)}
+.opt:active:not(:disabled){transform:translate(3px,3px);box-shadow:0 0 0 var(--line)}
+.opt:disabled{cursor:default}
+.opt.pick{background:var(--pink);color:#fff}
+.opt.right{background:var(--mint);color:#063b2d}
+.fb{margin-top:10px;font-size:16px}
+.ed{border:2.5px solid var(--line);border-radius:16px;overflow:hidden;margin-top:12px;background:var(--code)}
+.ed::before{content:"● ● ●";display:block;font-size:10px;letter-spacing:3px;padding:4px 12px;background:var(--soft);color:var(--pink);border-bottom:2px solid var(--line)}
+.ed:focus-within{box-shadow:0 0 0 4px color-mix(in srgb,var(--vio) 35%,transparent)}
+textarea.code{display:block;width:100%;min-height:150px;border:0;background:transparent;color:var(--ink);padding:12px 14px;resize:vertical;outline:none;white-space:pre;overflow:auto}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+.btn{min-height:46px;padding:0 22px;border-radius:999px;border:2.5px solid var(--line);background:var(--vio);color:#fff;font:500 16px Mitr,sans-serif;cursor:pointer;box-shadow:3px 3px 0 var(--line);transition:transform .08s,box-shadow .08s}
+.btn:active:not(:disabled){transform:translate(3px,3px);box-shadow:0 0 0 var(--line)}
+.btn.alt{background:var(--paper);color:var(--ink)}
+.btn.sun{background:var(--sun);color:#3a2a00}
+.btn:disabled{opacity:.55;cursor:default}
+.btn:focus-visible,.opt:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--pink);outline-offset:3px}
+.io{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:12px}
+@media(max-width:600px){.io{grid-template-columns:minmax(0,1fr)}}
+.io div>span{font:500 13px Mitr,sans-serif;color:var(--muted)}
+.io pre{background:#231a45;color:#e9e3ff;border:2.5px solid var(--line);border-radius:14px;padding:10px 12px;margin:3px 0 0;min-height:66px;max-height:240px;overflow:auto;white-space:pre-wrap;font-size:14px}
+.io pre.exp{background:var(--code);color:var(--ink);border-style:dashed}
+.io pre.err{color:#ffb3cf}
+.form{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:12px}
+@media(max-width:600px){.form{grid-template-columns:minmax(0,1fr)}}
+label.f{display:flex;flex-direction:column;font:500 14px Mitr,sans-serif;color:var(--muted);gap:4px}
+input,textarea.ref{font:16px 'IBM Plex Sans Thai Looped',sans-serif;color:var(--ink);background:var(--code);border:2.5px solid var(--line);border-radius:14px;padding:10px 12px;min-height:46px}
+textarea.ref{width:100%;min-height:84px;resize:vertical;margin-top:6px}
+table{border-collapse:collapse;width:100%;font-size:15px;margin:8px 0}
+th,td{text-align:left;padding:8px;border-bottom:2px dashed var(--soft);vertical-align:top}
+th{font:500 15px Mitr,sans-serif}
+code{font-family:'JetBrains Mono',monospace;font-size:.9em;background:var(--soft);padding:1px 6px;border-radius:6px}
+.submit{background:var(--pink);color:#fff}
+.submit p{color:#fff0f7}
+.submit .big{font:600 clamp(36px,6vw,56px)/1 Mitr,sans-serif;color:var(--sun);-webkit-text-stroke:1.5px var(--line);paint-order:stroke}
+.linkbox{width:100%;font:13px 'JetBrains Mono',monospace;background:#fff;color:#2a2150;border:2.5px solid var(--line);border-radius:14px;padding:10px;min-height:46px;overflow-wrap:anywhere}
+.note{font-size:14px;color:var(--muted)}
+.submit .note,.submit #copyMsg{color:#fff0f7}
+.teacher{background:var(--sun);color:#3a2a00;padding:10px max(5vw,16px);font:500 15px Mitr,sans-serif;border-bottom:2.5px solid var(--line)}
+.ask{background:light-dark(#fff8d6,#2f2a17)}
+.ask summary{display:flex;gap:12px;align-items:center;cursor:pointer;list-style:none;min-height:44px}
+.ask summary::-webkit-details-marker{display:none}
+.ask summary b{font:500 19px Mitr,sans-serif}
+.ask summary small{display:block;font-size:13px;color:var(--muted)}
+.ask[open] summary small{display:none}
+.ask .q{flex:none;width:40px;height:40px;border-radius:50%;background:var(--sun);color:#3a2a00;border:2.5px solid var(--line);display:grid;place-items:center;font:600 22px Mitr,sans-serif;box-shadow:2px 2px 0 var(--line)}
+.ask summary:focus-visible{outline:3px solid var(--pink);outline-offset:3px;border-radius:12px}
+td.yes{color:var(--good);font-weight:600;white-space:nowrap}td.no{color:var(--bad);font-weight:600}
+.ask code{white-space:nowrap}
+.ask table{display:block;overflow-x:auto}
+@media(max-width:600px){.ask table,.ask tbody,.ask tr,.ask td{display:block}.ask tr:first-child{display:none}.ask td{border:0;padding:2px 0}.ask tr{border-bottom:2px dashed var(--soft);padding:8px 0}}
+.hints{margin-top:12px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.hint{width:100%;background:light-dark(#fff8d6,#2f2a17);border:2px dashed light-dark(#e0b400,#8a7420);border-radius:14px;padding:8px 12px}
+.hint p{margin:2px 0 0}.hint pre{margin:4px 0 0;font-size:14px;white-space:pre-wrap}
+.hl{font:500 13px Mitr,sans-serif;color:light-dark(#8a6a00,#ffd96b)}
+.hbtn{min-height:40px;font-size:15px}
+[data-msg]{color:var(--bad)}
+.lesson{scroll-margin-top:80px}
+.lesson.flash{animation:fl 1.2s ease-out}
+@keyframes fl{0%{box-shadow:0 0 0 6px var(--sun),5px 5px 0 var(--line)}100%{box-shadow:5px 5px 0 var(--line)}}
+.kno{display:inline-block;font:500 13px Mitr,sans-serif;background:var(--vio);color:#fff;border:2px solid var(--line);border-radius:999px;padding:1px 10px;margin-bottom:6px}
+.lesson h3{font-size:22px;margin-bottom:8px}
+.kgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0}
+.kgrid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:640px){.kgrid,.kgrid.two{grid-template-columns:minmax(0,1fr)}}
+.kgrid>div{background:var(--soft);border:2px solid var(--line);border-radius:16px;padding:10px 12px}
+.kgrid p{margin:6px 0 0;font-size:15px}
+.kgrid .in{background:light-dark(#e3fbf3,#163a31)}.kgrid .out{background:light-dark(#ffe9f3,#3c1d2e)}
+.vocab{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 6px}
+.vocab span{background:var(--paper);border:2px solid var(--line);border-radius:999px;padding:2px 12px 2px 4px;font-size:15px}
+.vocab code{background:var(--sun);color:#3a2a00;border-radius:999px;padding:1px 8px;margin-right:4px}
+.rule{background:light-dark(#fff8d6,#2f2a17);border-radius:12px;padding:8px 12px}
+.rx{margin-top:12px;border:2.5px solid var(--line);border-radius:18px;padding:14px;background:var(--code)}
+.rxh{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
+.rxh b{font:500 18px Mitr,sans-serif}
+.rxin{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
+@media(max-width:560px){.rxin{grid-template-columns:minmax(0,1fr)}}
+.rxf>span{font:500 14px Mitr,sans-serif;color:var(--muted)}
+.stp{display:flex;gap:6px;align-items:center}
+.stp .btn{min-width:44px;padding:0;font-size:22px}
+.stp input{width:100%;text-align:center;font:600 20px 'JetBrains Mono',monospace}
+.rxpre{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{min-height:40px;border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:0 12px;font:14px 'JetBrains Mono',monospace;cursor:pointer}
+.chip:hover{background:var(--soft)}
+.rxcode{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:12px}
+.rxcode code{font-size:17px;padding:4px 10px}
+#rxCount{font:500 15px Mitr,sans-serif;color:var(--vio)}
+.beads{display:flex;flex-wrap:wrap;gap:10px 6px;margin-top:12px;padding:10px 6px;background:repeating-linear-gradient(90deg,transparent 0 10px,light-dark(#e2d9ff,#2e2550) 10px 20px) center/100% 4px no-repeat}
+.bead{position:relative;min-width:44px;height:44px;padding:0 6px;border-radius:999px;display:grid;place-items:center;background:var(--sun);color:#3a2a00;border:2.5px solid var(--line);font:600 17px 'JetBrains Mono',monospace;box-shadow:2px 2px 0 var(--line);transition:transform .2s,background .2s}
+.bead.on{background:var(--pink);color:#fff;transform:translateY(-6px) scale(1.12)}
+.bead.stop{background:transparent;color:var(--muted);border-style:dashed;box-shadow:none;margin-left:6px}
+.bead.stop small{position:absolute;top:44px;font:500 11px Mitr,sans-serif;white-space:nowrap}
+.bead.ghost{background:transparent;box-shadow:none;border-style:dashed}
+.rxi{font:500 17px Mitr,sans-serif;color:var(--pink)}
+.ac{margin-top:12px;border:2.5px solid var(--line);border-radius:18px;padding:14px;background:var(--code)}
+.acTop{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+.acTop b{font:500 18px Mitr,sans-serif}
+.chip.sel{background:var(--vio);color:#fff}
+.acv{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;margin-top:12px;align-items:center}
+@media(max-width:640px){.acv{grid-template-columns:minmax(0,1fr)}}
+.acCode{margin:0;background:#231a45;color:#e9e3ff;border:2.5px solid var(--line);border-radius:14px;padding:8px 0;font-size:15px;white-space:pre;overflow-x:auto}
+.acCode .ln{display:block;padding:3px 12px;transition:background .25s}
+.acCode .ln em{font-style:normal;color:#8e83c0;display:inline-block;width:22px}
+.acCode .ln.on{background:var(--pink);color:#fff}
+.acCode .ln.on em{color:#fff}
+.vars{display:flex;gap:10px;margin-top:12px}
+.var{flex:1;border:2.5px solid var(--line);border-radius:14px;background:var(--paper);padding:6px 12px;display:flex;align-items:baseline;justify-content:space-between;box-shadow:3px 3px 0 var(--line)}
+.var span{font:600 15px 'JetBrains Mono',monospace;color:var(--muted)}
+.var b{font:600 28px 'JetBrains Mono',monospace}
+.var.tot b{color:var(--vio)}
+.var b.bump{animation:bump .5s}
+@keyframes bump{40%{transform:scale(1.35);color:var(--pink)}}
+.acMsg{min-height:52px;margin:10px 0 0;font:500 16px Mitr,sans-serif}
+.jarWrap{position:relative;max-width:220px;justify-self:center;width:100%}
+.jar{width:100%;height:auto;display:block}
+.jar rect#acFill,.jar rect#acFill2{transition:y .5s,height .5s}
+.jarNum{position:absolute;left:0;right:0;top:56%;text-align:center;font:600 34px Mitr,sans-serif;color:#2a2150;pointer-events:none}
+.jarLbl{text-align:center;font:500 14px Mitr,sans-serif;color:var(--muted)}
+.coins{position:absolute;left:0;right:0;top:-6px;height:0}
+.coin{position:absolute;left:50%;top:0;width:44px;height:44px;margin-left:-22px;border-radius:50%;background:var(--sun);border:3px solid var(--line);display:grid;place-items:center;font:600 16px 'JetBrains Mono',monospace;color:#3a2a00;animation:drop .85s ease-in forwards}
+@keyframes drop{0%{transform:translateY(-30px) scale(.6);opacity:0}20%{opacity:1;transform:translateY(-10px) scale(1)}75%{transform:translateY(110px);opacity:1}100%{transform:translateY(140px) scale(.5);opacity:0}}
+.acOutRow{margin-top:10px}.acOutRow span{font:500 13px Mitr,sans-serif;color:var(--muted)}
+.acOutRow pre{margin:3px 0 0;background:#231a45;color:#e9e3ff;border:2.5px solid var(--line);border-radius:14px;padding:8px 12px;min-height:40px;font-size:16px}
+#acRows tr.new{background:light-dark(#fff8d6,#2f2a17)}
+@media(prefers-reduced-motion:reduce){.var b.bump{animation:none}.jar rect#acFill,.jar rect#acFill2,.acCode .ln{transition:none}}
+.io.one{grid-template-columns:minmax(0,1fr)}
+table.trace td,table.trace th{text-align:center}
+.ktags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:-2px 0 6px;font-size:13px;color:var(--muted)}
+.ktag{min-height:30px;border:1.5px solid var(--line);background:var(--soft);color:var(--ink);border-radius:999px;padding:0 10px;font:500 13px Mitr,sans-serif;cursor:pointer}
+.ktag:hover{background:var(--sun);color:#3a2a00}
+@media(prefers-reduced-motion:reduce){.bead,.lesson.flash{transition:none;animation:none}}
+.hide{display:none!important}
+@media(prefers-reduced-motion:reduce){.ring .fg,.btn,.opt{transition:none}#runner animateMotion{display:none}}
+</style>
+</head>
+<body>
+<div id="teacherBar" class="teacher hide">โหมดครู: กำลังดูใบงานที่นักเรียนส่งมา (ระบบรันโค้ดของนักเรียนใหม่ทุกข้อเพื่อตรวจคะแนนจริง)</div>
+<header class="hero"><div class="in">
+ <div>
+  <span class="tag">วิทยาการคำนวณ ม.3</span>
+  <h1>วนไป วนมา กับ for loop</h1>
+  <p>ใบงานที่รันโค้ดได้จริง ตอบปุ๊บรู้ผลปั๊บ ทำครบ 4 รอบแล้วส่งลิงก์ให้ครู · เต็ม 25 คะแนน</p>
+ </div>
+ <div class="loopArt" aria-hidden="true">
+  <svg viewBox="0 0 360 190">
+   <defs><path id="trk" d="M180 95 C150 35 60 30 60 95 C60 160 150 155 180 95 C210 35 300 30 300 95 C300 160 210 155 180 95Z"/></defs>
+   <use href="#trk" fill="none" stroke="#2a2150" stroke-width="30" stroke-linejoin="round"/>
+   <use href="#trk" fill="none" stroke="#ffd23f" stroke-width="22" stroke-linejoin="round"/>
+   <use href="#trk" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="8 10"/>
+   <g fill="#ff6fae" stroke="#2a2150" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M100 26 l14 -9 v18z"/><path d="M262 166 l-14 9 v-18z"/>
+   </g>
+   <g font-family="Mitr,sans-serif" font-size="13" fill="#fff"><text x="34" y="182">เริ่มรอบใหม่</text><text x="252" y="20">ทำซ้ำอีก</text></g>
+   <g id="runner">
+    <g transform="translate(-20,-26)">
+     <ellipse cx="20" cy="45" rx="13" ry="3.5" fill="#000" opacity=".18"/>
+     <path d="M4 30 C4 12 14 4 20 4 C26 4 36 12 36 30 C36 40 30 44 20 44 C10 44 4 40 4 30Z" fill="#2fd3a7" stroke="#2a2150" stroke-width="2.5"/>
+     <circle cx="14" cy="24" r="3" fill="#2a2150"/><circle cx="26" cy="24" r="3" fill="#2a2150"/>
+     <circle cx="15" cy="23" r="1" fill="#fff"/><circle cx="27" cy="23" r="1" fill="#fff"/>
+     <ellipse cx="10" cy="31" rx="3" ry="2" fill="#ff6fae"/><ellipse cx="30" cy="31" rx="3" ry="2" fill="#ff6fae"/>
+     <path d="M17 31 q3 3 6 0" fill="none" stroke="#2a2150" stroke-width="2" stroke-linecap="round"/>
+     <path d="M20 4 q4 -6 9 -3" fill="none" stroke="#2a2150" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+    <animateMotion dur="4s" repeatCount="indefinite"><mpath href="#trk"/></animateMotion>
+   </g>
+  </svg>
+  <div class="counter"><span>for i in range(5):</span><b id="iVal">i = 0</b></div>
+ </div>
+</div></header>
+<div class="sbar"><div class="in">
+ <svg class="ring" viewBox="0 0 46 46" aria-hidden="true"><circle class="bgc" cx="23" cy="23" r="18"/><circle class="fg" id="ringFg" cx="23" cy="23" r="18" stroke-dasharray="113.1" stroke-dashoffset="113.1" transform="rotate(-90 23 23)"/></svg>
+ <div><b id="scoreTxt">0 / 22</b><small id="lapTxt">ยังไม่เริ่มวิ่ง</small></div>
+ <span class="py" id="pyStatus">กำลังโหลด Python…</span>
+</div></div>
+
+<main id="app"></main>
+
+<script>
+{
+/* ===== ตั้งค่าสำหรับครู ===== */
+const SHEET_URL = ''; // ใส่ URL ของ Google Apps Script (ลงท้าย /exec) ถ้าต้องการให้ผลงานเข้า Google Sheet อัตโนมัติ
+
+const PYODIDE='https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+const STORE='forloop-ws-v1';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ===== เนื้อหาใบงาน ===== */
+const MCQ=[
+ {code:'for i in range(3):\n    print("สวัสดี")',q:'โปรแกรมนี้พิมพ์คำว่า สวัสดี ออกมากี่บรรทัด',opts:['2 บรรทัด','3 บรรทัด','4 บรรทัด','1 บรรทัด'],a:1,why:'range(3) ทำให้ลูปทำงาน 3 รอบ (i = 0, 1, 2)'},
+ {code:'for i in range(4):\n    print(i)',q:'ตัวเลขสุดท้ายที่พิมพ์ออกมาคืออะไร',opts:['3','4','5','0'],a:0,why:'range(4) เริ่มที่ 0 และหยุดก่อนถึง 4 จึงได้ 0, 1, 2, 3'},
+ {code:'for i in range(2, 6):\n    print(i)',q:'ผลลัพธ์คือข้อใด',opts:['2 3 4 5','2 3 4 5 6','3 4 5 6','2 6'],a:0,why:'range(2, 6) มี start = 2 และ stop = 6 จึงได้ 2 ถึง 5 (ไม่รวม 6)'},
+ {code:'for i in range(0, 10, 3):\n    print(i)',q:'ผลลัพธ์คือข้อใด',opts:['0 3 6 9','3 6 9','0 3 6 9 12','0 1 2 3'],a:0,why:'ตัวเลขตัวที่สามคือ step (ก้าว) เพิ่มทีละ 3 และหยุดก่อน stop ที่ 10'},
+ {code:'for i in range(3):\n    print("A")\nprint("B")',q:'ผลลัพธ์คือข้อใด',opts:['A A A B','A B A B A B','A B','B A A A'],a:0,why:'print("B") ไม่ได้ย่อหน้า จึงอยู่นอกลูป ทำครั้งเดียวหลังลูปจบ'},
+ {code:'total = 0\nfor i in range(1, 5):\n    total = total + i\nprint(total)',q:'ค่าที่พิมพ์ออกมาคือเท่าไร',opts:['10','15','4','5'],a:0,why:'บวกสะสม 1 + 2 + 3 + 4 = 10'}
+];
+const TASKS=[
+ {id:'d1',part:2,t:'ก. โปรแกรมควรพิมพ์ Python 3 บรรทัด แต่รันไม่ได้',start:'for i in range(3)\n    print("Python")',exp:'Python\nPython\nPython'},
+ {id:'d2',part:2,t:'ข. โปรแกรมควรพิมพ์เลข 1 ถึง 3',start:'for i in range(1, 4):\nprint(i)',exp:'1\n2\n3'},
+ {id:'d3',part:2,t:'ค. โปรแกรมควรพิมพ์ดาว * 5 บรรทัด',start:'For i in range(5):\n    print("*")',exp:'*\n*\n*\n*\n*'},
+ {id:'d4',part:2,t:'ง. โปรแกรมควรพิมพ์เลข 1 ถึง 5 แต่ผลลัพธ์ไม่ตรง (รันได้ แต่ผิด)',start:'for i in range(5):\n    print(i)',exp:'1\n2\n3\n4\n5',hints:['ดูผลลัพธ์ของเรา: เลขแรกคืออะไร แล้วเลขแรกที่ต้องการคืออะไร','range(5) ให้ 0, 1, 2, 3, 4 ถ้าอยากได้ 1 ถึง 5 ต้องใส่ start = 1 แล้ว stop ควรเป็นเลขอะไร','for i in range(1, __):\n    print(i)']},
+ {id:'w1',part:3,t:'ก. พิมพ์ข้อความ ฉันชอบเขียนโค้ด จำนวน 4 บรรทัด',start:'',exp:'ฉันชอบเขียนโค้ด\nฉันชอบเขียนโค้ด\nฉันชอบเขียนโค้ด\nฉันชอบเขียนโค้ด',hints:['ต้องพิมพ์ซ้ำกี่ครั้ง ใส่จำนวนนั้นใน range()','บรรทัดแรกเป็น for ... in range(...): บรรทัดที่สองย่อหน้า 4 ช่องแล้ว print ข้อความในเครื่องหมาย " "','for i in range(__):\n    print("________")']},
+ {id:'w2',part:3,t:'ข. พิมพ์เลขคู่ตั้งแต่ 2 ถึง 20 บรรทัดละ 1 ตัว',start:'',exp:[2,4,6,8,10,12,14,16,18,20].join('\n'),hints:['เลขคู่เพิ่มทีละ 2 ใช้ range แบบ 3 ตัวเลข: range(start, stop, step) คือ เริ่ม, หยุดก่อน, ก้าว','start = 2, step = 2 และอยากได้ 20 ด้วย stop จึงต้องมากกว่า 20','for i in range(2, __, 2):\n    print(i)']},
+ {id:'w3',part:3,t:'ค. พิมพ์สูตรคูณแม่ 7 ตั้งแต่ 7 x 1 = 7 ถึง 7 x 12 = 84',start:'',exp:Array.from({length:12},(_,i)=>`7 x ${i+1} = ${7*(i+1)}`).join('\n'),hints:['สูตรคูณมี 12 บรรทัด ให้ i เป็นตัวคูณ ตั้งแต่ 1 ถึง 12','print ใส่ข้อความกับตัวเลขปนกันได้ โดยคั่นด้วย , เช่น print("7 x", i)','for i in range(1, 13):\n    print("7 x", i, "=", ____)']},
+ {id:'w4',part:3,t:'ง. หาผลรวมของ 1 + 2 + 3 + … + 100 แล้วพิมพ์ผลรวมออกมาบรรทัดเดียว',start:'total = 0\n',exp:'5050',hints:['ใช้ total เป็นกระปุกออมสิน: ทุกรอบเอาเลขของรอบนั้นใส่เพิ่มลงไป','ให้ i เป็น 1 ถึง 100 คือ range(1, 101) ในลูปเขียน total = total + i','total = 0\nfor i in range(1, 101):\n    total = ________\nprint(total)   # ไม่ย่อหน้า จะพิมพ์ครั้งเดียวหลังลูปจบ']},
+ {id:'bn',part:5,t:'ท้าทาย: พิมพ์สามเหลี่ยมดาว 5 ชั้น',start:'',exp:'*\n**\n***\n****\n*****',hints:['"*" * 3 จะได้ *** ลองให้จำนวนดาวเท่ากับเลขรอบ','ให้ i เป็น 1 ถึง 5 แล้วพิมพ์ "*" คูณด้วย i','for i in range(1, 6):\n    print(________)']}
+];
+const KT={range:['k-range','range()'],inout:['k-inout','ในลูป / นอกลูป'],acc:['k-acc','ตัวแปรสะสม'],print:['k-print','print หลายค่า']};
+const MK=[['range'],['range'],['range'],['range'],['inout'],['acc','range']];
+const TK={d2:['inout'],d4:['range'],w1:['range'],w2:['range'],w3:['range','print'],w4:['acc','inout','range'],bn:['print','range']};
+const ktags=ks=>ks&&ks.length?`<div class="ktags"><span>ใช้ความรู้:</span>${ks.map(k=>`<button class="ktag" data-goto="${KT[k][0]}">${KT[k][1]}</button>`).join('')}</div>`:'';
+const REF=['ถ้าไม่มี for loop โค้ดในตอนที่ 3 ข้อ ค. จะยาวขึ้นอย่างไร','เมื่อไหร่ที่เราควรใช้ for loop ยกตัวอย่างจากชีวิตจริง 1 อย่าง','วันนี้เจอข้อผิดพลาดแบบไหนบ่อยที่สุด และแก้อย่างไร'];
+
+/* ===== Python runner (โหลด Pyodide บนหน้าเว็บ ใช้ได้ทั้ง Vercel และเปิดไฟล์ในเครื่อง) ===== */
+const HELPER=`
+import sys, time, traceback
+def __run(src, g):
+    t0 = time.time()
+    def tr(frame, event, arg):
+        if time.time() - t0 > 3:
+            raise TimeoutError("__TIMEOUT__")
+        return tr
+    def no_input(*a):
+        raise RuntimeError("ใบงานนี้ไม่ใช้ input()")
+    g["input"] = no_input
+    try:
+        code = compile(src, "<code>", "exec")
+    except SyntaxError:
+        return traceback.format_exc(limit=0)
+    sys.settrace(tr)
+    try:
+        exec(code, g)
+    except TimeoutError as e:
+        sys.settrace(None)
+        return "TIMEOUT" if "__TIMEOUT__" in str(e) else traceback.format_exc()
+    except BaseException:
+        sys.settrace(None)
+        return traceback.format_exc()
+    finally:
+        sys.settrace(None)
+    return None
+`;
+let py=null,out='';
+function setPy(t,c){const el=$('#pyStatus');el.textContent=t;el.className='py '+(c||'')}
+const ready=new Promise((res,rej)=>{
+ const sc=document.createElement('script');sc.src=PYODIDE;
+ sc.onerror=()=>{setPy('โหลด Python ไม่ได้ ตรวจอินเทอร์เน็ตแล้วรีเฟรช','err');rej()};
+ sc.onload=async()=>{try{py=await loadPyodide();py.runPython(HELPER);
+  const w=s=>{if(out.length<20000)out+=s+'\n'};py.setStdout({batched:w});py.setStderr({batched:w});
+  setPy('Python พร้อมใช้งาน','ok');res()}catch(e){setPy('เริ่ม Python ไม่ได้ ลองรีเฟรช','err');rej(e)}};
+ document.head.appendChild(sc);
+});
+ready.catch(()=>{});
+let queue=Promise.resolve();
+function runPy(code){
+ const job=queue.then(async()=>{
+  try{await ready}catch(e){return {ok:false,out:'',err:'NOPY'}}
+  await new Promise(r=>setTimeout(r,20));
+  out='';const g=py.globals.get('dict')();let err;
+  try{err=py.globals.get('__run')(code,g)}catch(e){err=String(e.message||e)}finally{g.destroy()}
+  return err==null?{ok:true,out}:{ok:false,out,err:String(err)};
+ });
+ queue=job.catch(()=>{});return job;
+}
+function hint(err,code){
+ if(err==='TIMEOUT')return 'โค้ดทำงานนานเกิน 3 วินาที (อาจวนไม่รู้จบ) ระบบหยุดให้แล้ว';
+ if(err==='NOPY')return 'ยังโหลด Python ไม่ได้ ตรวจอินเทอร์เน็ตแล้วรีเฟรชหน้า';
+ const lines=[...err.matchAll(/File "<code>", line (\d+)/g)];const ln=lines.length?lines[lines.length-1][1]:'';
+ const last=err.trim().split('\n').filter(Boolean).pop()||err;let th;
+ if(/^\s*(For|FOR)\b/m.test(code))th='for ต้องเขียนด้วยตัวพิมพ์เล็กทั้งหมด';
+ else if(/^\s*for\s+(in\b|range\b)/m.test(code))th='for ต้องมีชื่อตัวแปรเก็บค่าแต่ละรอบ เช่น for i in range(3): หรือ for _ in range(3):';
+ else if(/expected ':'/.test(last))th='ลืมเครื่องหมาย : ท้ายบรรทัด for';
+ else if(/Indentation|indented block/.test(last))th='การย่อหน้าไม่ถูกต้อง คำสั่งในลูปต้องเว้น 4 ช่อง';
+ else if(/NameError/.test(last))th='มีชื่อที่ Python ไม่รู้จัก ตรวจการสะกด ตัวพิมพ์ใหญ่-เล็ก หรือลืมใส่ " " ครอบข้อความ';
+ else if(/SyntaxError/.test(last))th='เขียนผิดรูปแบบ ตรวจวงเล็บ เครื่องหมายคำพูด และ :';
+ else if(/TypeError/.test(last))th='ชนิดข้อมูลไม่ตรงกัน เช่น นำข้อความไปบวกกับตัวเลข';
+ else th='โค้ดมีข้อผิดพลาด';
+ return (ln?`บรรทัด ${ln}: `:'')+th+'\n('+last+')';
+}
+const norm=s=>String(s).replace(/\r/g,'').split('\n').map(l=>l.replace(/\s+/g,' ').trim()).join('\n').trim();
+const cut=x=>x.length>40?x.slice(0,40)+'…':x;
+function diffMsg(got,exp){
+ const g=norm(got)?norm(got).split('\n'):[],e=norm(exp).split('\n');
+ if(!g.length)return 'ยังไม่มีอะไรพิมพ์ออกมาเลย ลืม print หรือ print อยู่นอกลูปหรือเปล่า';
+ if(e.length===1&&g.length>1)return `เราพิมพ์ออกมา ${g.length} บรรทัด แต่ต้องการแค่บรรทัดเดียว print อยู่ในลูปหรือเปล่า (ลองเอาย่อหน้าหน้า print ออก)`;
+ for(let i=0;i<Math.min(g.length,e.length);i++)if(g[i]!==e[i])return `บรรทัดที่ ${i+1} ของเราคือ "${cut(g[i])}" แต่ที่ต้องการคือ "${cut(e[i])}"`;
+ if(g.length>e.length)return `ถูกทุกบรรทัด แต่พิมพ์เกินมา ${g.length-e.length} บรรทัด (เราพิมพ์ ${g.length} ต้องการ ${e.length}) ลองดูจำนวนรอบใน range`;
+ return `ถูก ${g.length} บรรทัดแรก แต่ยังขาดอีก ${e.length-g.length} บรรทัด (ต้องการ ${e.length} บรรทัด) ลองดูจำนวนรอบใน range`;
+}
+async function check(task,code){
+ const r=await runPy(code);
+ const usesFor=/^\s*for\s+\w+\s+in\s+/m.test(code);
+ const pass=r.ok&&norm(r.out)===norm(task.exp)&&usesFor;
+ let msg=r.ok?(pass?'ถูกต้อง!':!usesFor?'ผลลัพธ์อาจตรง แต่ข้อนี้ต้องใช้ for loop':diffMsg(r.out,task.exp)):hint(r.err,code);
+ return {pass,out:r.out,ok:r.ok,msg};
+}
+
+/* ===== state ===== */
+let S={name:'',cls:'',no:'',mcq:Array(MCQ.length).fill(null),code:{},pass:{},hint:{},ref:REF.map(()=>'')};
+try{const s=JSON.parse(localStorage.getItem(STORE));if(s)S={...S,...s}}catch(e){}
+if(!S.hint||typeof S.hint!=='object')S.hint={};
+const save=()=>{try{localStorage.setItem(STORE,JSON.stringify(S))}catch(e){}};
+const auto=(st=S)=>st.mcq.filter((v,i)=>v===MCQ[i].a).length+2*TASKS.filter(t=>t.part<5&&st.pass[t.id]).length;
+function score(){const s=auto();$('#scoreTxt').textContent=`${s} / 22`;$('#ringFg').style.strokeDashoffset=113.1*(1-s/22);$('#lapTxt').textContent=s===22?'วนครบทุกรอบ เก่งมาก!':s?'กำลังวิ่งรอบสนาม':'ยังไม่เริ่มวิ่ง'}
+
+/* ===== render worksheet ===== */
+function edBox(t,val,ro){return `<div class="ed"><textarea class="code" data-id="${t.id}" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="โค้ด ${esc(t.t)}" ${ro?'readonly':''}>${esc(val)}</textarea></div>`}
+function hintBox(t){
+ const n=Math.min(S.hint[t.id]||0,t.hints.length),L=['แนวคิด','โครงโค้ด','เกือบเฉลย'];
+ const shown=t.hints.slice(0,n).map((h,k)=>`<div class="hint"><span class="hl">คำใบ้ ${k+1} · ${L[k]}</span>${/\n|^(for|total)\b/.test(h)?`<pre>${esc(h)}</pre>`:`<p>${esc(h)}</p>`}</div>`).join('');
+ const btn=n<t.hints.length?`<button class="btn alt hbtn" data-hint="${t.id}">${n?'ยังติดอยู่ ขอคำใบ้ถัดไป':'ติดอยู่ใช่ไหม ขอคำใบ้'} (${n+1}/${t.hints.length})</button>`:'<span class="note">เปิดคำใบ้ครบแล้ว ลองเติมช่องว่างดูนะ</span>';
+ return shown+btn;
+}
+function taskCard(t,i){
+ const val=S.code[t.id]??t.start,pass=S.pass[t.id];
+ return `<div class="card ${pass?'done':''}" id="c-${t.id}">
+ <div class="qhead"><h3>${esc(t.t)}</h3><span class="status ${pass?'ok':''}" data-st="${t.id}">${pass?'ผ่านแล้ว':t.part===5?'โบนัส':'2 คะแนน'}</span></div>${ktags(TK[t.id])}
+ 
+ ${edBox(t,val)}
+ <div class="row"><button class="btn" data-run="${t.id}">รันและตรวจ</button>${t.start?`<button class="btn alt" data-reset="${t.id}">เริ่มใหม่</button>`:''}<span class="fb" data-msg="${t.id}"></span></div>
+ ${t.hints?`<div class="hints" data-hints="${t.id}">${hintBox(t)}</div>`:''}
+ <div class="io"><div><span>ผลลัพธ์ของเรา</span><pre data-out="${t.id}"></pre></div><div><span>ผลลัพธ์ที่ต้องการ</span><pre class="exp">${esc(t.exp)}</pre></div></div>
+ </div>`;
+}
+function mcqCard(m,i){
+ const v=S.mcq[i],done=v!==null;
+ return `<div class="card ${done?(v===m.a?'done':'wrong'):''}" id="m-${i}">
+ <div class="qhead"><h3>ข้อ ${i+1}. ${esc(m.q)}</h3><span class="pts">1 คะแนน</span></div>${ktags(MK[i])}
+ <pre class="src">${esc(m.code)}</pre>
+ <div class="opts">${m.opts.map((o,j)=>`<button class="opt ${done&&j===m.a?'right':''} ${done&&j===v&&v!==m.a?'pick':''}" data-q="${i}" data-o="${j}" ${done?'disabled':''}>${esc(o)}</button>`).join('')}</div>
+ <div class="fb" data-mfb="${i}">${done?fbText(m,v):''}</div>
+ </div>`;
+}
+const fbText=(m,v)=>`<b style="color:var(${v===m.a?'--good':'--bad'})">${v===m.a?'ถูกต้อง':'ยังไม่ถูก'}</b> — ${esc(m.why)} <button class="btn alt" style="min-height:36px;margin-left:6px" data-runm="${MCQ.indexOf(m)}">รันดูผลจริง</button><pre class="src hide" data-mout="${MCQ.indexOf(m)}"></pre>`;
+
+function renderSheet(){
+ $('#app').innerHTML=`
+ <section class="card"><h2>ข้อมูลนักเรียน</h2>
+  <div class="form"><label class="f">ชื่อ-สกุล<input id="fName" value="${esc(S.name)}" autocomplete="name"></label>
+  <label class="f">ชั้น (เช่น ม.3/2)<input id="fCls" value="${esc(S.cls)}"></label>
+  <label class="f">เลขที่<input id="fNo" inputmode="numeric" value="${esc(S.no)}"></label></div>
+  <p class="note">คำตอบบันทึกในเครื่องนี้อัตโนมัติ ปิดหน้าแล้วกลับมาทำต่อได้</p></section>
+
+ <section class="sec"><span class="lap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v4h-4"/></svg>วอร์มอัพ</span><h2>ลูปคืออะไร ทำไมต้องใช้</h2>
+  <p>เหมือนวิ่งรอบสนาม: บอกครั้งเดียวว่าจะวิ่งกี่รอบ แล้วคอมพิวเตอร์ทำซ้ำให้เอง ไม่ต้องพิมพ์คำสั่งเดิมหลายครั้ง</p>
+  <div class="card">
+   <table><tr><th>ส่วนของโค้ด</th><th>ความหมาย</th></tr>
+   <tr><td><code>for</code> <code>in</code></td><td>คำสำคัญ เขียนด้วยตัวพิมพ์เล็ก</td></tr>
+   <tr><td><code>i</code></td><td>ตัวแปรนับรอบ ตั้งชื่ออื่นได้</td></tr>
+   <tr><td><code>range(5)</code></td><td>0, 1, 2, 3, 4 (5 รอบ) แบบอื่นดูบทเรียน 1 ด้านล่าง</td></tr>
+   <tr><td><code>:</code> และย่อหน้า 4 ช่อง</td><td>ต้องมี : ท้าย for และคำสั่งในลูปต้องย่อหน้า</td></tr></table>
+   <h3 style="margin-top:12px">ลองรันตัวอย่าง (แก้โค้ดได้)</h3>
+   ${edBox({id:'ex',t:'ตัวอย่าง'},S.code.ex??'for i in range(1, 6):\n    print("รอบที่", i)\nprint("จบลูป")')}
+   <div class="row"><button class="btn" data-runex="ex">รันโค้ด</button></div>
+   <div class="io" style="grid-template-columns:minmax(0,1fr)"><div><span>ผลลัพธ์</span><pre data-exout="ex"></pre></div></div>
+  </div>
+  <div class="card lesson" id="k-range">
+   <span class="kno">บทเรียน 1</span><h3>range() นับเลขให้ลูป 3 แบบ</h3>
+   <div class="vocab"><span><code>start</code> = เริ่ม</span><span><code>stop</code> = หยุดก่อน (ไม่รวม)</span><span><code>step</code> = ก้าว กระโดดทีละเท่าไร</span></div>
+   <div class="kgrid">
+    <div><code>range(stop)</code><p>ใส่แค่ stop เริ่มที่ 0 เสมอ<br><code>range(4)</code> → 0, 1, 2, 3</p></div>
+    <div><code>range(start, stop)</code><p>กำหนด start เอง<br><code>range(2, 6)</code> → 2, 3, 4, 5</p></div>
+    <div><code>range(start, stop, step)</code><p>กำหนด step ว่ากระโดดทีละเท่าไร<br><code>range(0, 10, 3)</code> → 0, 3, 6, 9</p></div>
+   </div>
+   <p class="rule"><b>กฎทอง:</b> range <b>หยุดก่อน</b> stop เสมอ ไม่เอาเลข stop มาด้วย อยากได้ถึง 5 ต้องใส่ stop เป็น 6 → <code>range(1, 6)</code></p>
+   <div class="rx">
+    <div class="rxh"><b>ของเล่นทดลอง range</b><span class="note">ปรับเลขแล้วดูว่าลูปจะได้ i เป็นอะไรบ้าง</span></div>
+    <div class="rxin">
+     ${[['rs','start · เริ่ม',2],['re','stop · หยุดก่อน',6],['rp','step · ก้าว',1]].map(([id,l,v])=>`<div class="rxf"><span>${l}</span><div class="stp"><button class="btn alt" data-step="${id}" data-d="-1" aria-label="ลด${l}">−</button><input id="${id}" type="number" inputmode="numeric" value="${v}" aria-label="${l}"><button class="btn alt" data-step="${id}" data-d="1" aria-label="เพิ่ม${l}">+</button></div></div>`).join('')}
+    </div>
+    <div class="rxpre">${[['range(5)',0,5,1],['range(2, 6)',2,6,1],['range(1, 11)',1,11,1],['range(0, 10, 3)',0,10,3],['range(2, 21, 2)',2,21,2],['range(5, 0, -1)',5,0,-1]].map(([t,a,b,c])=>`<button class="chip" data-pre="${a},${b},${c}">${t}</button>`).join('')}</div>
+    <div class="rxcode"><code id="rxCode"></code><span id="rxCount"></span></div>
+    <div class="beads" id="rxBeads" aria-live="polite"></div>
+    <div class="row"><button class="btn" id="rxPlay">เล่นดูทีละรอบ</button><b id="rxI" class="rxi"></b></div>
+   </div>
+  </div>
+
+  <div class="card lesson" id="k-inout">
+   <span class="kno">บทเรียน 2</span><h3>ในลูป กับ นอกลูป ดูที่ย่อหน้า</h3>
+   <div class="kgrid two">
+    <div class="in"><b>ย่อหน้า 4 ช่อง = ในลูป</b><p>ทำ<b>ทุกรอบ</b> วิ่ง 3 รอบก็ทำ 3 ครั้ง</p></div>
+    <div class="out"><b>ไม่ย่อหน้า = นอกลูป</b><p>ทำ<b>ครั้งเดียว</b> หลังลูปวิ่งครบแล้ว</p></div>
+   </div>
+   ${edBox({id:'kx1',t:'ในลูปนอกลูป'},S.code.kx1??'for i in range(3):\n    print("วิ่งรอบที่", i)    # ในลูป\nprint("ถึงเส้นชัย!")            # นอกลูป')}
+   <div class="row"><button class="btn" data-runex="kx1">รันโค้ด</button><span class="note">ลองเว้นวรรค 4 ช่องหน้าบรรทัดสุดท้ายแล้วรันใหม่ ผลต่างกันอย่างไร</span></div>
+   <div class="io one"><div><span>ผลลัพธ์</span><pre data-exout="kx1"></pre></div></div>
+  </div>
+
+  <div class="card lesson" id="k-acc">
+   <span class="kno">บทเรียน 3</span><h3>ตัวแปรสะสม กระปุกออมสินของลูป</h3>
+   <p>สร้างกระปุกเปล่า <code>total = 0</code> ไว้<b>ก่อน</b>ลูป ทุกรอบหยอดเลขของรอบนั้นลงไป <code>total = total + i</code> แล้ว print <b>หลัง</b>ลูปจบ</p>
+   <div class="ac" id="acBox">
+    <div class="acTop"><b>ดูลูปทำงานทีละขั้น</b><div class="rxpre" style="margin:0">${[5,6,11].map(n=>`<button class="chip" data-acn="${n}">range(1, ${n})</button>`).join('')}</div></div>
+    <div class="acv">
+     <div>
+      <pre class="acCode" id="acCode"></pre>
+      <div class="vars"><div class="var"><span>i</span><b id="acI">-</b></div><div class="var tot"><span>total</span><b id="acT">-</b></div></div>
+      <p class="acMsg" id="acMsg" aria-live="polite"></p>
+     </div>
+     <div class="jarWrap">
+      <div class="coins" id="acCoins"></div>
+      <svg viewBox="0 0 160 190" class="jar" aria-hidden="true">
+       <defs><clipPath id="jarClip"><path d="M30 50 Q22 60 22 80 V160 Q22 178 40 178 H120 Q138 178 138 160 V80 Q138 60 130 50 Z"/></clipPath></defs>
+       <rect x="52" y="22" width="56" height="20" rx="6" fill="#ff6fae" stroke="#2a2150" stroke-width="3"/>
+       <rect x="66" y="28" width="28" height="6" rx="3" fill="#2a2150"/>
+       <g clip-path="url(#jarClip)"><rect id="acFill" x="0" y="178" width="160" height="0" fill="#ffd23f"/>
+        <rect id="acFill2" x="0" y="178" width="160" height="6" fill="#ffe680"/></g>
+       <path d="M30 50 Q22 60 22 80 V160 Q22 178 40 178 H120 Q138 178 138 160 V80 Q138 60 130 50 Z" fill="none" stroke="#2a2150" stroke-width="4"/>
+       <path d="M36 44 H124 V52 H36Z" fill="#cbb8ff" stroke="#2a2150" stroke-width="3"/>
+       <path d="M34 80 V140" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+      </svg>
+      <div class="jarNum" id="acJarNum">0</div>
+      <div class="jarLbl">กระปุก total</div>
+     </div>
+    </div>
+    <div class="row"><button class="btn" id="acPlay">เล่น</button><button class="btn alt" id="acNext">ทีละขั้น</button><button class="btn alt" id="acReset">เริ่มใหม่</button></div>
+    <div class="acOutRow"><span>ผลลัพธ์ที่ print</span><pre id="acOut"></pre></div>
+    <table class="trace"><thead><tr><th>รอบ</th><th>i</th><th>total ก่อน</th><th>total = total + i</th></tr></thead><tbody id="acRows"></tbody></table>
+   </div>
+   ${edBox({id:'kx2',t:'ตัวแปรสะสม'},S.code.kx2??'total = 0\nfor i in range(1, 5):\n    total = total + i\n    print("i =", i, "total =", total)\nprint("ผลรวมสุดท้าย:", total)')}
+   <div class="row"><button class="btn" data-runex="kx2">รันโค้ด</button></div>
+   <div class="io one"><div><span>ผลลัพธ์</span><pre data-exout="kx2"></pre></div></div>
+  </div>
+
+  <div class="card lesson" id="k-print">
+   <span class="kno">บทเรียน 4</span><h3>print หลายอย่างในบรรทัดเดียว</h3>
+   <p>ใส่หลายค่าใน print ได้โดยคั่นด้วย <code>,</code> Python เว้นวรรคให้เอง ข้อความต้องอยู่ใน <code>" "</code> ส่วนตัวแปรและการคำนวณไม่ต้องใส่ และ <code>"*" * 3</code> คือข้อความซ้ำ 3 ครั้ง ได้ <code>***</code></p>
+   ${edBox({id:'kx3',t:'print หลายค่า'},S.code.kx3??'i = 3\nprint("7 x", i, "=", 7 * i)\nprint("ฉันอายุ", 15, "ปี")\nprint("*" * 3)')}
+   <div class="row"><button class="btn" data-runex="kx3">รันโค้ด</button></div>
+   <div class="io one"><div><span>ผลลัพธ์</span><pre data-exout="kx3"></pre></div></div>
+  </div>
+  <details class="card ask">
+   <summary><span class="q">?</span><span><b>สงสัยไหม: ไม่ใช้ i ได้หรือเปล่า</b><small>กดเพื่ออ่านคำตอบ</small></span></summary>
+   <p><b>คำตอบสั้น ๆ:</b> ต้องมี<b>ชื่อตัวแปร</b>ตรงนั้นเสมอ แต่ไม่จำเป็นต้องชื่อ i และไม่จำเป็นต้องนำไปใช้ก็ได้</p>
+   <p><code>i</code> คือกล่องที่เก็บค่าของรอบปัจจุบัน ทุกครั้งที่วนรอบใหม่ Python จะใส่เลขตัวถัดไปจาก range ลงในกล่องนี้ ที่นิยมใช้ชื่อ i เพราะย่อมาจาก <i>index</i> (ลำดับ) เป็นธรรมเนียมของนักเขียนโปรแกรมทั่วโลก</p>
+   <table>
+    <tr><th>แบบ</th><th>โค้ด</th><th>ได้ไหม</th></tr>
+    <tr><td>ใช้ค่า i ในลูป อยากรู้ว่าตอนนี้รอบที่เท่าไร</td><td><code>for i in range(3):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;print("รอบ", i)</code></td><td class="yes">ได้</td></tr>
+    <tr><td>มี i แต่ไม่ได้ใช้ แค่อยากทำซ้ำ</td><td><code>for i in range(3):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;print("ว้าว")</code></td><td class="yes">ได้ ไม่ผิด</td></tr>
+    <tr><td>ใช้ _ บอกว่า "ไม่สนใจค่านี้" (นิยมในหมู่โปรแกรมเมอร์)</td><td><code>for _ in range(3):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;print("ว้าว")</code></td><td class="yes">ได้</td></tr>
+    <tr><td>ตั้งชื่ออื่นที่สื่อความหมาย</td><td><code>for lap in range(1, 4):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;print("วิ่งรอบที่", lap)</code></td><td class="yes">ได้</td></tr>
+    <tr><td>ตัดชื่อตัวแปรทิ้งไปเลย</td><td><code>for range(3):</code></td><td class="no">ไม่ได้ SyntaxError</td></tr>
+   </table>
+   <p>ทำไมตัดทิ้งไม่ได้? เพราะ for ถูกออกแบบให้หยิบค่าออกมาทีละตัวแล้ว<b>ต้องมีที่วาง</b> ถ้าไม่บอกชื่อกล่อง Python ก็ไม่รู้จะวางค่าไว้ตรงไหน</p>
+   <h3 style="margin-top:6px">ทดลองเอง</h3>
+   <p class="note">รันดูก่อน แล้วลองลบ <code>_</code> ในบรรทัดแรกออกแล้วรันใหม่ จะเจออะไร</p>
+   ${edBox({id:'ex2',t:'ทดลองตัวแปรลูป'},S.code.ex2??'for _ in range(3):\n    print("ไม่ใช้ i ก็วนได้")\n\nfor lap in range(1, 4):\n    print("วิ่งรอบที่", lap)')}
+   <div class="row"><button class="btn" data-runex="ex2">รันโค้ด</button></div>
+   <div class="io" style="grid-template-columns:minmax(0,1fr)"><div><span>ผลลัพธ์</span><pre data-exout="ex2"></pre></div></div>
+  </details>
+  </section>
+
+ <section class="sec"><span class="lap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v4h-4"/></svg>รอบที่ 1 · 6 คะแนน</span><h2>ทายสิ ลูปนี้จะออกอะไร</h2><p>เลือกได้ครั้งเดียว ไล่ดูทีละรอบก่อนกดนะ</p>${MCQ.map(mcqCard).join('')}</section>
+ <section class="sec"><span class="lap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v4h-4"/></svg>รอบที่ 2 · 8 คะแนน</span><h2>นักสืบบั๊ก</h2><p>ลูปพวกนี้สะดุดล้ม ช่วยแก้ให้วิ่งต่อได้ ผลลัพธ์ต้องตรงกับที่ต้องการ · ข้อความสีชมพูใต้ผลลัพธ์จะบอกว่าผิดตรงไหน</p>${TASKS.filter(t=>t.part===2).map(taskCard).join('')}</section>
+ <section class="sec"><span class="lap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v4h-4"/></svg>รอบที่ 3 · 8 คะแนน</span><h2>สร้างลูปของเราเอง</h2><p>ทุกข้อต้องใช้ for loop เท่านั้น · ติดตรงไหนกดขอคำใบ้ได้ ไม่หักคะแนน แต่ครูจะเห็นว่าใช้ไปกี่ขั้น</p>${TASKS.filter(t=>t.part===3).map(taskCard).join('')}</section>
+ <section class="sec"><span class="lap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v4h-4"/></svg>รอบพิเศษ</span><h2>ด่านลับ สามเหลี่ยมดาว</h2><p>ไม่มีคะแนน แต่ครูจะเห็นว่าใครทำได้</p>${TASKS.filter(t=>t.part===5).map(taskCard).join('')}</section>
+ <section class="sec"><span class="lap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v4h-4"/></svg>รอบที่ 4 · 3 คะแนน</span><h2>คิดย้อนหลังสักนิด</h2><p>ตอบด้วยภาษาของตัวเอง ครูเป็นผู้ให้คะแนน</p>
+  <div class="card">${REF.map((q,i)=>`<label class="f" style="margin-top:${i?14:0}px;color:var(--ink);font-size:16px">${i+1}. ${esc(q)}<textarea class="ref" data-ref="${i}">${esc(S.ref[i])}</textarea></label>`).join('')}</div></section>
+
+ <section class="sec"><div class="card submit">
+  <h2>เข้าเส้นชัย ส่งใบงาน</h2>
+  <p>คะแนนอัตโนมัติตอนนี้</p><div class="big" id="subScore"></div>
+  <p id="subDetail"></p>
+  <div class="row"><button class="btn sun" id="mkLink">สร้างลิงก์ส่งครู</button>${SHEET_URL?'<button class="btn alt" id="toSheet">ส่งเข้า Google Sheet ของครู</button>':''}</div>
+  <div id="linkArea" class="hide" style="margin-top:12px">
+   <div class="linkbox" id="linkBox"></div>
+   <div class="row"><button class="btn alt" id="copyLink">คัดลอกลิงก์</button><button class="btn alt" id="shareLink">แชร์ (LINE / อื่น ๆ)</button><span id="copyMsg"></span></div>
+   <p class="note">ส่งลิงก์นี้ให้ครูทาง LINE หรือ Google Classroom · ถ้าแก้คำตอบหลังจากนี้ ต้องกดสร้างลิงก์ใหม่</p>
+  </div>
+  <p id="sheetMsg" class="note"></p>
+ </div></section>`;
+ refreshSubmit();score();rx();acBuild(5);
+}
+const hintTotal=h=>TASKS.reduce((a,t)=>a+(t.hints?Math.min(+h[t.id]||0,t.hints.length):0),0);
+function refreshSubmit(){
+ const m=S.mcq.filter((v,i)=>v===MCQ[i].a).length,c=TASKS.filter(t=>t.part<5&&S.pass[t.id]).length;
+ const el=$('#subScore');if(!el)return;
+ el.textContent=`${auto()} / 22`;
+ $('#subDetail').textContent=`ตอนที่ 1 ได้ ${m}/6 · ตอนที่ 2-3 ผ่าน ${c}/8 ข้อ · โบนัส ${S.pass.bn?'ผ่าน':'ยังไม่ผ่าน'} · ตอนที่ 4 ครูตรวจ · ใช้คำใบ้ ${hintTotal(S.hint)} ขั้น`;
+}
+
+/* ===== events ===== */
+document.addEventListener('input',e=>{
+ const t=e.target;
+ if(['rs','re','rp'].includes(t.id)){rx();return}
+ if(t.id==='fName')S.name=t.value;else if(t.id==='fCls')S.cls=t.value;else if(t.id==='fNo')S.no=t.value;
+ else if(t.matches('textarea.code')&&!t.readOnly){S.code[t.dataset.id]=t.value;if(S.pass[t.dataset.id]){S.pass[t.dataset.id]=false;markTask(t.dataset.id,false,'แก้โค้ดแล้ว กดรันและตรวจอีกครั้ง');score();refreshSubmit()}}
+ else if(t.dataset.ref!==undefined)S.ref[+t.dataset.ref]=t.value;
+ save();
+});
+document.addEventListener('keydown',e=>{
+ const t=e.target;if(!t.matches||!t.matches('textarea.code')||t.readOnly)return;
+ const s=t.selectionStart,en=t.selectionEnd,v=t.value;
+ if(e.key==='Tab'&&!e.shiftKey){e.preventDefault();t.setRangeText('    ',s,en,'end');t.dispatchEvent(new Event('input',{bubbles:true}))}
+ else if(e.key==='Enter'&&!e.isComposing){e.preventDefault();const line=v.slice(v.lastIndexOf('\n',s-1)+1,s);let ind=line.match(/^ */)[0];if(/:\s*$/.test(line))ind+='    ';t.setRangeText('\n'+ind,s,en,'end');t.dispatchEvent(new Event('input',{bubbles:true}))}
+});
+function markTask(id,pass,msg,out,isErr){
+ const c=$('#c-'+id);if(!c)return;c.classList.toggle('done',pass);
+ const st=c.querySelector('[data-st]');st.textContent=pass?'ผ่านแล้ว':id==='bn'?'โบนัส':'2 คะแนน';st.className='status '+(pass?'ok':'');
+ const m=c.querySelector('[data-msg]');m.textContent=msg||'';m.style.color=pass?'var(--good)':'var(--bad)';
+ if(out!==undefined){const o=c.querySelector('[data-out]');o.textContent=out;o.classList.toggle('err',!!isErr)}
+}
+document.addEventListener('click',async e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.q!==undefined){
+  const i=+b.dataset.q,j=+b.dataset.o;if(S.mcq[i]!==null)return;S.mcq[i]=j;save();
+  const card=$('#m-'+i);card.outerHTML=mcqCard(MCQ[i],i);score();refreshSubmit();return;
+ }
+ if(b.dataset.runm!==undefined){const i=+b.dataset.runm,pre=document.querySelector(`[data-mout="${i}"]`);pre.classList.remove('hide');pre.textContent='กำลังรัน…';const r=await runPy(MCQ[i].code);pre.textContent=r.out||hint(r.err||'',MCQ[i].code);return}
+ if(b.dataset.runex){const k=b.dataset.runex,code=document.querySelector(`textarea[data-id="${k}"]`).value,o=document.querySelector(`[data-exout="${k}"]`);o.textContent='กำลังรัน…';const r=await runPy(code);o.textContent=r.ok?(r.out||'(ไม่มีผลลัพธ์)'):(r.out+hint(r.err,code));o.classList.toggle('err',!r.ok);return}
+ if(b.dataset.run){
+  const id=b.dataset.run,t=TASKS.find(x=>x.id===id),code=document.querySelector(`textarea[data-id="${id}"]`).value;
+  if(!code.trim()){markTask(id,false,'ยังไม่ได้เขียนโค้ด');return}
+  b.disabled=true;b.textContent='กำลังรัน…';
+  const r=await check(t,code);b.disabled=false;b.textContent='รันและตรวจ';
+  S.pass[id]=r.pass;S.code[id]=code;save();
+  markTask(id,r.pass,r.ok?r.msg:'',r.ok?(r.out||'(ไม่มีผลลัพธ์)'):(r.out+r.msg),!r.ok);score();refreshSubmit();return;
+ }
+ if(b.dataset.goto){const el=document.getElementById(b.dataset.goto);if(el){el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')}return}
+ if(b.dataset.step){const inp=document.getElementById(b.dataset.step);inp.value=(parseInt(inp.value)||0)+(+b.dataset.d);rx();return}
+ if(b.dataset.pre){const [a,c,d]=b.dataset.pre.split(',');$('#rs').value=a;$('#re').value=c;$('#rp').value=d;rx();return}
+ if(b.id==='rxPlay'){rxPlay();return}
+ if(b.dataset.acn){acReset();acBuild(+b.dataset.acn);return}
+ if(b.id==='acPlay'){acPlay();return}
+ if(b.id==='acNext'){if(AC.timer){clearInterval(AC.timer);AC.timer=null}acStep();return}
+ if(b.id==='acReset'){acReset();return}
+ if(b.dataset.hint){const id=b.dataset.hint,t=TASKS.find(x=>x.id===id);S.hint[id]=Math.min((S.hint[id]||0)+1,t.hints.length);save();const box=document.querySelector(`[data-hints="${id}"]`);box.innerHTML=hintBox(t);const last=box.querySelectorAll('.hint');if(last.length)last[last.length-1].scrollIntoView({block:'nearest'});refreshSubmit();return}
+ if(b.dataset.reset){const id=b.dataset.reset,t=TASKS.find(x=>x.id===id),ta=document.querySelector(`textarea[data-id="${id}"]`);ta.value=t.start;ta.dispatchEvent(new Event('input',{bubbles:true}));return}
+ if(b.id==='mkLink'){
+  if(!S.name.trim()||!S.cls.trim()||!S.no.trim()){$('#subDetail').textContent='กรุณากรอกชื่อ ชั้น และเลขที่ ด้านบนก่อนส่ง';$('#fName').focus();return}
+  const link=await makeLink();$('#linkBox').textContent=link;$('#linkArea').classList.remove('hide');return;
+ }
+ if(b.id==='copyLink'){copy($('#linkBox').textContent);return}
+ if(b.id==='shareLink'){const url=$('#linkBox').textContent;
+  if(navigator.share){try{await navigator.share({title:'ใบงาน for loop',text:`ใบงาน for loop ของ ${S.name} ${S.cls} เลขที่ ${S.no}`,url})}catch(err){}}else copy(url);return}
+ if(b.id==='toSheet'){
+  if(!S.name.trim()){$('#sheetMsg').textContent='กรุณากรอกชื่อก่อนส่ง';return}
+  const link=await makeLink();b.disabled=true;$('#sheetMsg').textContent='กำลังส่ง…';
+  try{await fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({name:S.name,cls:S.cls,no:S.no,mcq:S.mcq.filter((v,i)=>v===MCQ[i].a).length,code:TASKS.filter(t=>t.part<5&&S.pass[t.id]).length*2,total:auto(),bonus:!!S.pass.bn,hints:hintTotal(S.hint),link})});$('#sheetMsg').textContent='ส่งแล้ว! ครูจะเห็นผลงานใน Google Sheet'}
+  catch(err){$('#sheetMsg').textContent='ส่งไม่สำเร็จ ลองใหม่ หรือใช้ลิงก์ส่งครูแทน'}
+  b.disabled=false;return;
+ }
+ if(b.id==='backSheet'){history.replaceState(null,'',location.pathname);location.reload()}
+});
+async function copy(text){try{await navigator.clipboard.writeText(text);$('#copyMsg').textContent='คัดลอกแล้ว'}catch(e){const r=document.createRange();r.selectNodeContents($('#linkBox'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('#copyMsg').textContent='กด Ctrl+C / คัดลอก เพื่อคัดลอกลิงก์ที่เลือกไว้'}}
+
+/* ===== range explorer ===== */
+let rxTimer=null;
+function rxVals(){const a=parseInt($('#rs').value),b=parseInt($('#re').value),c=parseInt($('#rp').value);return [isNaN(a)?0:a,isNaN(b)?0:b,isNaN(c)?1:c]}
+function rx(){
+ if(!$('#rxBeads'))return;clearInterval(rxTimer);rxTimer=null;$('#rxPlay').textContent='เล่นดูทีละรอบ';$('#rxI').textContent='';
+ const [a,b,c]=rxVals();
+ const code=c===1?(a===0?`range(${b})`:`range(${a}, ${b})`):`range(${a}, ${b}, ${c})`;
+ $('#rxCode').textContent=`for i in ${code}:`;
+ if(c===0){$('#rxCount').textContent='ก้าวเป็น 0 ไม่ได้ (วนไม่รู้จบ) Python จะแจ้ง error';$('#rxBeads').innerHTML='';return}
+ const v=[];for(let i=a;c>0?i<b:i>b;i+=c){v.push(i);if(v.length>40)break}
+ const more=v.length>40;if(more)v.length=40;
+ $('#rxCount').textContent=v.length?`วนทั้งหมด ${more?'มากกว่า 40':v.length} รอบ`:'วน 0 รอบ ลูปไม่ทำงานเลย (เลขเริ่มเลยเลขหยุดไปแล้ว)';
+ $('#rxBeads').innerHTML=v.map((n,k)=>`<span class="bead" data-k="${k}">${n}</span>`).join('')+(more?'<span class="bead ghost">…</span>':`<span class="bead stop" title="ไม่รวม">${b}<small>ไม่รวม</small></span>`);
+}
+function rxPlay(){
+ if(rxTimer){clearInterval(rxTimer);rxTimer=null;$('#rxPlay').textContent='เล่นดูทีละรอบ';return}
+ const beads=[...document.querySelectorAll('#rxBeads .bead[data-k]')];if(!beads.length)return;
+ let k=0;$('#rxPlay').textContent='หยุด';
+ const step=()=>{beads.forEach(x=>x.classList.remove('on'));if(k>=beads.length){clearInterval(rxTimer);rxTimer=null;$('#rxPlay').textContent='เล่นอีกครั้ง';$('#rxI').textContent='จบลูป ไปทำบรรทัดถัดไป';return}
+  beads[k].classList.add('on');$('#rxI').textContent=`รอบที่ ${k+1}: i = ${beads[k].textContent}`;k++};
+ step();rxTimer=setInterval(step,800);
+}
+
+/* ===== accumulator animation ===== */
+const AC={stop:5,steps:[],k:-1,timer:null};
+const RM=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+function acBuild(stop){
+ AC.stop=stop;AC.k=-1;const st=[];let t=0;
+ st.push({line:1,i:null,t:0,msg:'บรรทัด 1: สร้างกระปุกเปล่า total = 0 ไว้ก่อนเข้าลูป'});
+ for(let i=1;i<stop;i++){
+  st.push({line:2,i,t,msg:`บรรทัด 2: รอบที่ ${i} range ส่งค่า i = ${i} มาให้`});
+  st.push({line:3,i,t:t+i,coin:i,row:[i,i,t,t+i],msg:`บรรทัด 3: total = ${t} + ${i} = ${t+i} หยอดเหรียญ ${i} ลงกระปุก`});
+  t+=i;
+ }
+ st.push({line:2,i:stop-1,t,msg:`บรรทัด 2: range หมดแล้ว (ไม่ถึง stop = ${stop}) ออกจากลูป`});
+ st.push({line:4,i:stop-1,t,out:true,msg:`บรรทัด 4: print(total) ไม่ได้ย่อหน้า จึงทำครั้งเดียว พิมพ์ ${t}`});
+ AC.steps=st;AC.max=t;
+ const code=['total = 0',`for i in range(1, ${stop}):`,'    total = total + i','print(total)'];
+ $('#acCode').innerHTML=code.map((c,k)=>`<span class="ln" data-ln="${k+1}"><em>${k+1}</em>${esc(c)}</span>`).join('');
+ document.querySelectorAll('[data-acn]').forEach(b=>b.classList.toggle('sel',+b.dataset.acn===stop));
+ acDraw(true);
+}
+function acDraw(reset){
+ const s=AC.steps[AC.k];
+ document.querySelectorAll('#acCode .ln').forEach(l=>l.classList.toggle('on',!!s&&+l.dataset.ln===s.line));
+ $('#acI').textContent=s&&s.i!=null?s.i:'-';
+ const tEl=$('#acT');const newT=s?s.t:'-';if(tEl.textContent!==String(newT)&&s&&s.coin){tEl.classList.remove('bump');void tEl.offsetWidth;tEl.classList.add('bump')}tEl.textContent=newT;
+ $('#acMsg').textContent=s?s.msg:'กด เล่น หรือ ทีละขั้น เพื่อดูว่า total เปลี่ยนไปอย่างไรในแต่ละรอบ';
+ const total=s?s.t:0,h=Math.round(118*(AC.max?total/AC.max:0));
+ $('#acFill').setAttribute('y',178-h);$('#acFill').setAttribute('height',h);$('#acFill2').setAttribute('y',178-h);$('#acFill2').setAttribute('height',h?6:0);
+ $('#acJarNum').textContent=total;
+ const rows=AC.steps.slice(0,AC.k+1).filter(x=>x.row);
+ $('#acRows').innerHTML=rows.map((x,n)=>`<tr class="${n===rows.length-1&&s&&s.row?'new':''}"><td>${x.row[0]}</td><td>${x.row[1]}</td><td>${x.row[2]}</td><td>${x.row[2]} + ${x.row[1]} = <b>${x.row[3]}</b></td></tr>`).join('');
+ $('#acOut').textContent=s&&s.out?String(s.t):'';
+ if(s&&s.coin&&!reset&&!RM()){const c=document.createElement('span');c.className='coin';c.textContent='+'+s.coin;$('#acCoins').appendChild(c);setTimeout(()=>c.remove(),900)}
+ const done=AC.k>=AC.steps.length-1;$('#acNext').disabled=done;
+ if(done&&AC.timer){clearInterval(AC.timer);AC.timer=null}
+ $('#acPlay').textContent=AC.timer?'หยุด':done?'เล่นอีกครั้ง':AC.k<0?'เล่น':'เล่นต่อ';
+}
+function acStep(){if(AC.k<AC.steps.length-1){AC.k++;acDraw(false)}}
+function acPlay(){
+ if(AC.timer){clearInterval(AC.timer);AC.timer=null;acDraw(true);return}
+ if(AC.k>=AC.steps.length-1){AC.k=-1;acDraw(true)}
+ AC.timer=setInterval(acStep,1300);acStep();
+}
+function acReset(){clearInterval(AC.timer);AC.timer=null;AC.k=-1;acDraw(true)}
+
+/* ===== share link encode/decode ===== */
+async function pack(obj){
+ const bytes=new TextEncoder().encode(JSON.stringify(obj));let out=bytes,pre='j';
+ if(window.CompressionStream){try{out=new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer());pre='z'}catch(e){out=bytes}}
+ let s='';out.forEach(b=>s+=String.fromCharCode(b));
+ return pre+btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+async function unpack(str){
+ let b=str.slice(1).replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';
+ let data=Uint8Array.from(atob(b),c=>c.charCodeAt(0));
+ if(str[0]==='z')data=new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+ return JSON.parse(new TextDecoder().decode(data));
+}
+async function makeLink(){
+ const code={};TASKS.forEach(t=>{if(S.code[t.id]!==undefined)code[t.id]=S.code[t.id]});
+ const d={v:1,n:S.name,c:S.cls,no:S.no,t:new Date().toISOString(),m:S.mcq,code,r:S.ref,h:S.hint};
+ return location.origin+location.pathname+'#r='+await pack(d);
+}
+
+/* ===== teacher view ===== */
+async function renderTeacher(hash){
+ $('#teacherBar').classList.remove('hide');$('.sbar .ring').classList.add('hide');$('#scoreTxt').parentElement.classList.add('hide');
+ let d;
+ try{d=await unpack(hash);if(!d||d.v!==1)throw 0}
+ catch(e){$('#app').innerHTML=`<div class="card"><h2>เปิดใบงานนี้ไม่ได้</h2><p>ลิงก์อาจไม่ครบ (คัดลอกมาไม่หมด) หรือเบราว์เซอร์เก่าเกินไป ลองเปิดด้วย Chrome รุ่นล่าสุด</p><button class="btn" id="backSheet">ไปหน้าใบงาน</button></div>`;return}
+ const mcq=Array.isArray(d.m)?d.m:[];const codes=d.code&&typeof d.code==='object'?d.code:{};const ref=Array.isArray(d.r)?d.r:[];const hu=d.h&&typeof d.h==='object'?d.h:{};
+ const mScore=MCQ.filter((q,i)=>mcq[i]===q.a).length;
+ const when=new Date(d.t);const whenTxt=isNaN(when)?'-':when.toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'});
+ $('#app').innerHTML=`
+ <section class="card"><h2>${esc(d.n)}</h2><p>ชั้น ${esc(d.c)} · เลขที่ ${esc(d.no)} · ส่งเมื่อ ${esc(whenTxt)}</p>
+  <div class="big" style="font:600 44px Kanit,Sarabun,sans-serif;color:var(--vio)" id="tTotal">… / 22</div>
+  <p id="tDetail" class="note">กำลังรันโค้ดของนักเรียนเพื่อตรวจ…</p>
+  <label class="f" style="max-width:260px">คะแนนตอนที่ 4 (ครูให้ / 3)<input id="tRef" type="number" min="0" max="3" step="0.5" inputmode="decimal"></label>
+  <p id="tGrand" class="note"></p>
+  <div class="row"><button class="btn alt" id="backSheet">เปิดใบงานเปล่า</button></div></section>
+ <section class="sec"><h2>ตอนที่ 1 · ${mScore}/6</h2><div class="card"><table><tr><th>ข้อ</th><th>นักเรียนตอบ</th><th>เฉลย</th><th></th></tr>
+ ${MCQ.map((q,i)=>{const v=mcq[i];const ans=Number.isInteger(v)&&q.opts[v]!==undefined?q.opts[v]:'ไม่ได้ตอบ';return `<tr><td>${i+1}</td><td>${esc(ans)}</td><td>${esc(q.opts[q.a])}</td><td class="status ${v===q.a?'ok':'no'}">${v===q.a?'ถูก':'ผิด'}</td></tr>`}).join('')}</table></div></section>
+ <section class="sec"><h2>ตอนที่ 2-3 และโบนัส</h2>${TASKS.map(t=>`<div class="card" id="c-${t.id}"><div class="qhead"><h3>${esc(t.t)}</h3><span class="status" data-st="${t.id}">กำลังตรวจ…</span></div>
+  ${t.hints?`<p class="note" style="margin:0">คำใบ้ที่เปิด: <b>${Math.min(+hu[t.id]||0,t.hints.length)} / ${t.hints.length} ขั้น</b>${(+hu[t.id]||0)>=t.hints.length?' (เปิดถึงขั้นเกือบเฉลย)':''}</p>`:''}
+  <pre class="src">${esc(codes[t.id]??'(ไม่ได้เขียน)')}</pre>
+  <div class="io"><div><span>ผลลัพธ์เมื่อรันจริง</span><pre data-out="${t.id}"></pre></div><div><span>ผลลัพธ์ที่ต้องการ</span><pre class="exp">${esc(t.exp)}</pre></div></div><p class="fb" data-tmsg="${t.id}"></p></div>`).join('')}</section>
+ <section class="sec"><h2>ตอนที่ 4 สะท้อนคิด</h2><div class="card">${REF.map((q,i)=>`<p><b>${i+1}. ${esc(q)}</b><br>${esc(ref[i]||'(ไม่ได้ตอบ)').replace(/\n/g,'<br>')}</p>`).join('')}</div></section>`;
+ let pass=0,bonus=false;
+ for(const t of TASKS){
+  const code=codes[t.id];const c=$('#c-'+t.id),st=c.querySelector('[data-st]'),o=c.querySelector('[data-out]');
+  if(typeof code!=='string'||!code.trim()){st.textContent='ไม่ได้ทำ';st.className='status no';continue}
+  const r=await check(t,code);
+  o.textContent=r.ok?(r.out||'(ไม่มีผลลัพธ์)'):(r.out+r.msg);o.classList.toggle('err',!r.ok);
+  st.textContent=r.pass?'ผ่าน':r.ok?'ไม่ผ่าน':'รันไม่ได้';if(!r.pass&&r.ok)c.querySelector('[data-tmsg]').textContent=r.msg;st.className='status '+(r.pass?'ok':'no');c.classList.add(r.pass?'done':'wrong');
+  if(r.pass){if(t.part<5)pass++;else bonus=true}
+ }
+ const total=mScore+pass*2;
+ $('#tTotal').textContent=`${total} / 22`;
+ $('#tDetail').textContent=`ตอนที่ 1 ได้ ${mScore}/6 · ตอนที่ 2-3 ผ่าน ${pass}/8 ข้อ (${pass*2} คะแนน) · โบนัส ${bonus?'ผ่าน':'ไม่ผ่าน'} · ใช้คำใบ้รวม ${hintTotal(hu)} ขั้น — ตรวจจากการรันโค้ดจริงบนเครื่องครู`;
+ const g=()=>{const v=parseFloat($('#tRef').value);$('#tGrand').textContent=isNaN(v)?'':`คะแนนรวมทั้งใบงาน ${total+Math.min(3,Math.max(0,v))} / 25`};
+ $('#tRef').addEventListener('input',g);
+}
+
+/* ===== start ===== */
+{let i=0;if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(()=>{i=(i+1)%5;$('#iVal').textContent='i = '+i},4000)}
+if(location.hash.startsWith('#r='))renderTeacher(location.hash.slice(3));else renderSheet();
+}
+</script>
+</body>
+</html>
